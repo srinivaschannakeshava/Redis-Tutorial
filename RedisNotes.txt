@@ -1,0 +1,229 @@
+Redis Tutorial
+
+--> Advanced key value store
+--> keys contains strings, hashes, lists, sets and sortedsets
+--> built on C and built for high performace 
+
+-- Features of redis
+		-->Redis holds entire database in Memory and disk only for persistance
+		-->has rich set of datavalues compared to other key-value stores.
+		-->It can replicate data to an number of slaves
+
+Advantages of Redis	-
+	--> Super fast
+	--> Rich dataTypes
+	--> operations are Atomic-- concorent access of data is handled
+	-->Multiutility tools - it can be used as caching, messaging queues, short lived data etc.
+	
+Installation on Linux(Ubuntu)
+	-->	$sudo apt-get update
+		$sudo apt-get install redis-server
+	Start redis --> $redis-server	
+		connect to redis server		--> $redis-cli
+	On windows run 
+		--> redis-server.bat
+		connect to redis-server usibg redis-client.exe
+		
+		
+Redis Configuration
+	-->Two ways to config redis	-> edit the redis.conf file directly or
+								->start the redis and use redis comands to set/unset using config commands
+									ex:- commands -> $config get loglevel
+												  -> $config get *
+Redis DataTypes
+    -> Strings
+		--> commands -> $SET keyname {value} {EX in sec} {PX in millisec} {NX|XX}
+					ex:- SET srinivas userrole 
+						here now you query 
+						GET srinivas -> will return "userrole"
+		note:- Max string length 512MB				
+	->Hashes
+		-->	commands -> HMSET KEY field1 value1 field2 value2 field3 value3....
+					ex:- HMSET user1 username srinivas password nature useid 526106
+	->Lists 
+		--> Simple list of strings 
+			set --> lpush userlist srinivas raju murali ujwal
+					lset userlist {index} {value}
+			get --> lrange userlist 0 10 
+	->Sets	
+		-> Collection of strings 
+			-> add, remove, check for existance
+			set -> sadd {key/setname} {value}
+			get-> smembers {key/setname}
+			
+	->Sortedsets
+		->similar to set but sorted on with a score for each member
+			ex:- zadd userdata 3 srinivas
+ 
+Redis Commands
+
+redis remote server commands
+
+	-> redis-cli -h {ipaddress} -p {portnumber}	-a {password}
+
+Redis key commands
+	-> SET keyname {value} 
+	-> get keyname
+	-> del keyname  - deletes key if exists
+	-> dump keyname  - returns serialized  version of the value stored
+	-> exists keyname - return 1 if exists 0 if it doesnt
+	-> expire keyname  timeinsec - expires the availabel key after timeinsec
+	-> expireat keyname timestamp - expires at that unixtimestamp
+	-> pexpire keyname timeinmillisec
+	-> pexpireat keyname timestampinmillisec
+	-> keys pattern - lists all the keys corresponding to the pattern 
+		ex: keys * -lists all the keys
+			keys user* - lists key stating with user
+	-> move keyname {destdb} -redis by default 0th database 
+		ex: move username 1 
+	-> persist keyname - removes expiry from the key
+	-> pttl keyname- returns time of key expire in millisecs
+	-> ttl keyname- returns time of key expire in secs
+	-> randomkey - returns a random key from redis
+	-> rename {oldkey} {newkeyname} - rename the key name
+	-> renamenx {oldkeyname} {newkeyname} - rename if newkeyname doent exist
+	-> type {keyname} - returns key type {set or hashmap etc}
+	
+	
+Redis String commands
+	-> set keyname value [EX seconds] [PX milliseconds] [NX|XX]
+		-> EX expiry time in sec , PX expiry time in millisec , NX create only if keyname doesn't exist, XX create only if keyname exist
+			ex:- set test hello ex 1000 XX
+	-> get keyname 
+	-> getrange keyname startIndex endIndex
+	-> getset keyname value - set the key with the latest value and returns old value
+	-> getbit keyname offset
+	-> mget key1 key2 key3 ... - gets the value of all specified keys
+	-> setex keyname timeout value - set value and timeout for a key
+	-> setnx keyname value - set if not exists (setnx)
+	-> setrange key offset value - Overwrite part of a string at key starting at the specified offset.
+	-> strlen key - get string length of value of the key
+	-> mset key1 value1 key2 value2 .. keyN valueN - multiple key value set @ a time
+	-> msetnx key1 value1 key2 value2 .. keyN valueN 
+	-> psetex key1 EXPIRY_IN_MILLISECONDS value1 
+	-> incr key - increment the value of the key 
+	-> incrby key incrementnumber
+	-> decr key - decrement
+	-> decrby key decrementnumber
+	-> append key value
+
+Redis Hashmap commands
+	-> hmset key field1 value1 field2 value2 ... fieldn valuen
+	-> hget key filedname
+	-> hgetall key
+	-> hdel key field1 field2
+	-> hexists key field
+	-> hgetall key
+	-> hincrby key field incrnumber
+	-> hincrbyfloat key field flaotnumber
+	-> hkeys key - fetches all keys
+	-> hlen key
+	-> hmget key field1 field2 field3...fieldN
+	-> hmset key field1 value1 field2 value2 ... fieldN valueN
+	-> hsetnx key field value
+	-> hvals key - fetches all values
+	-> hscan
+	
+Redis Lists commands
+	-> lpush key value1 value2 value3
+	-> lrange key index endIndex
+	-> blpop key timeout - pops the first element of the list and blocks the client for timeout sec
+	-> brpop key timeout - pops last element of the list and blocks the client for timeout sec operation the list
+	-> brpoplpush sourcelist destinationlist timeout - pops the last element of the source list and moves to desstination list
+	-> lindex key index - index starts from 0 and -ve index links from last 
+	-> linsert key BEFORE|AFTER value insertValue- insert a value to list before or after the value .
+	-> llen key - length of the list
+	-> lpop key - pops the first element from the list
+	-> lpushx key value - push only if key exist and contains data.
+	-> lrem key count value - if count = 0 removes all the elements from list equal to value
+							  if count > 0 traverse and remove value starting from head
+							  if count < 0 traverse and remove value starting from tail
+	-> lset key index value 
+	-> ltrim key startindex stopindex
+	-> rpop key 0 - pops last element from the list
+	-> rpoplpush sourcelist destinationlist
+	-> rpush key value
+	-> rpushx key value 
+
+Redis Sets commands
+	-> sadd key member1 member2 member3.. memberN
+	-> smembers key - fetches all the member of set key
+	-> scard key - get number of memeber of the set
+	-> sdiff key1 key 2 - get the diff members of the two list w.r.t first set
+	-> sdiffstore destinationlist key1 key2 - the diff is stored in the destinationlist
+	-> sinter key1 key2 ... - intersection of the sets 
+	-> sinterstore destination key1 key2
+	-> sismember key member - checks the member presence in the list
+	-> smove source destination member 
+	-> spop key - pop a random member from the key 
+	-> srandmember key count - fetch count no of random members from the set
+	-> srem key member 
+	-> sunion key1 key2 key3 ...
+	-> sunionstore destination key1 key2...
+	-> sscan key cursor match pattern 
+
+Redis sorted set commands
+	almost same as above with s replaced by z 
+	-> zadd key score1 member1 score2 member2 ....
+	-> zcard key 
+	-> zcount key min max - count members with scores of given values
+	-> zincrby key increment member - increment the core of the member by increment value
+	-> zinterstore destination numkeys key1 key2... 
+	-> zrange key start stop 
+	-> zrangebylex key min max [LIMIT offsetcount]
+	-> zrangebyscore key min max [withscores] [limit offsetcount]
+	-> zrank key member - index of the member
+	-> zrem key member 
+	-> zremrangebylex key min max
+	-> zremrangebyrank key start stop 
+	-> zremrangebyscore key min max 
+	-> zrevrangebyscore key max min - Return a range of members in a sorted set, by score, with scores ordered from high to low
+	-> zrevrank key member - return index of the member in sortedset ordered from high to low 
+	-> zscore key member - returns score of the member 
+	-> zunionstore desstination numkeys key1 key2....
+	-> zscan key cursor match pattern count value 
+
+Redis hyperloglog
+Redis HyperLogLog is a algorithm that use randomization in order to provide an approximation of the 
+number of unique elements in a set using just a constant, and small, amount of memory.
+HyperLogLog provides a very good approximation of the cardinality of a set.
+
+	-> pfadd key element element2...
+	-> pfcount key1 key2...
+	-> pfmerge destkey sourcekey...
+	
+Redis Pub/Sub
+	-> psubscribe channelname/pattern ....
+	-> PUBSUB subcommand [argument [argument ...]] - introspection of the chat server
+	-> publish channel message 
+	-> punsubscribe [pattern/channelname ]
+	-> subscribe channel .....
+	-> unsubscribe channel ...
+
+Redis Transaction
+	-> Redis transaction allows to execute group of commands in single step 
+		-> commands are sequentially executed in order
+		-> its atomic - eigther all are executed or none
+	-> commands 
+		-> multi - after this command the commands entered are queued in a list 
+		-> exec - this will execute the queued commands
+		-> discard - flushes all the queued commands 
+		-> watch key1 key2 key3...
+		-> unwatch
+
+Redis scripting
+Redis connection
+Redis server
+
+Redis security 
+	-> currently a password to connect to the server is the only security
+Redis backup 
+	->SAVE - creates backup of the current redis database 
+	To restore redis data just move redis backup file (dump.rdb) into your redis directory and start the server 	
+	->BGSAVE - This command will start the backup process and run this in background
+	-> CLIENT LIST	Returns the list of clients connected to redis server
+	-> CLIENT SETNAME	Assigns a name to the current connection
+    -> CLIENT GETNAME	Returns the name of the current connection as set by CLIENT SETNAME.
+    -> CLIENT PAUSE	    This is a connections control command able to suspend all 
+						the Redis clients for the specified amount of time (in milliseconds).
+    -> CLIENT KILL
